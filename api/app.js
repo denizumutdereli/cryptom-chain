@@ -21,15 +21,12 @@ const userRouter = require('./routes/users');
 
 const app = express();
 
-//environment
-app.set('env', env);
-
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }));
 
-// view engine setup
+//environment
+app.set('env', env);
 app.set('api_secret_key', config.api_secret_key);
-
 
 const limiter = rateLimit({
 	windowMs: 15 * 60 * 1000, // 15 minutes
@@ -38,11 +35,12 @@ const limiter = rateLimit({
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 })
   
-/* DB Connection */
-const db = require("./models");
-const Role = db.role;
-db.sequelize.sync();
 
+// midlleware
+const verifyToken = require('./middleware/verify-token');
+
+/* DB Connection */
+const db = require('./config/db.config')();
 
 app.use(limiter)
 app.use(logger('dev'));
@@ -57,6 +55,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors()); 
 
 app.use('/', indexRouter);
+app.use('/api', verifyToken);
 app.use('/api/user', userRouter);
  
 // catch 404 and forward to error handler

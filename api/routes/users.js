@@ -1,12 +1,9 @@
 const express = require("express");
+const User = require("../models/User");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
-//caution not the C version. pure node! 
+ //caution not the C version. pure node! 
 const rateLimit = require("express-rate-limit");
-
-
-const { authJwt } = require("../middleware");
-const controller = require("../controllers/user.controller");
 
 const UserLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
@@ -32,11 +29,11 @@ const UserLimiter = rateLimit({
  * @rateLimit 1 Hour Window (IP) / Request limit:10 / JWT 12 minutes
  *
  * @apiSuccess (200) {Object} mixed `User` object(s) -> user.role == admin, list all
- * @apiError (200) {Object} {status: false, message: message} //code:0 for I/O signals for demo purpose
+ * @apiError (200) {Object} {status: false, message: message} //code:0 for I/O signals
  **/
 
-router.get(["/", "/account", "/profile"], UserLimiter, [authJwt.verifyToken], (req, res, next) => {
-  let userid = req.decoded.username; //default parameters from JWT token. partial-stateless for demo purpose.
+router.get(["/", "/account", "/profile"], UserLimiter, (req, res, next) => {
+  let userid = req.decoded.username; //default parameters from JWT token. partial-stateless
   let userRole = req.decoded.role;
   let param = { username: userid };
 
@@ -71,10 +68,10 @@ router.get(["/", "/account", "/profile"], UserLimiter, [authJwt.verifyToken], (r
  * ignoring the user_id parameter and continue with user own id.{userid = username from JWTtoken}
  *
  * @apiSuccess (200) {Object} mixed `User` object
- * @apiError (200) {Object} {status: false, message: message} //code:0 for I/O signals for demo purpose
+ * @apiError (200) {Object} {status: false, message: message} //code:0 for I/O signals
  **/
 
-router.put("/update/:user_id", UserLimiter, [authJwt.verifyToken, authJwt.isModerator], (req, res, next) => {
+router.put("/update/:user_id", UserLimiter, (req, res, next) => {
   if (req.params.user_id.match(/^[0-9a-fA-F]{24}$/) || !req.body) {
     let userid = req.decoded.username;
     let userRole = req.decoded.role;
@@ -128,7 +125,7 @@ router.put("/update/:user_id", UserLimiter, [authJwt.verifyToken, authJwt.isMode
  * @apiError (200) {Object} {status: false, message: message} //code:0 for I/O signals for demo purpose
  **/
 
-router.delete("/delete/:user_id", [authJwt.verifyToken, authJwt.isAdmin], (req, res, next) => {
+router.delete("/delete/:user_id", (req, res, next) => {
   if (req.params.user_id.match(/^[0-9a-fA-F]{24}$/) || !req.body) {
     let userid = req.decoded.username;
     let userRole = req.decoded.role;
