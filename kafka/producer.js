@@ -22,7 +22,7 @@ async function Producer(clientId, brokers, channel, message) {
             ]
         });
 
-        console.log("Produced!", JSON.stringify(message_result));
+        //console.log("Produced!", JSON.stringify(message_result));
         await producer.disconnect();
     } catch (error) {
         console.log("Error", error);
