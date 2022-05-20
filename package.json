@@ -33,9 +33,11 @@
     "hex-to-binary": "^1.0.1",
     "http-errors": "~1.6.3",
     "jsonwebtoken": "^8.5.1",
+    "kafkajs": "^2.0.0",
     "mongoose": "^6.1.5",
     "mongoose-paginate-v2": "^1.6.2",
     "morgan": "~1.9.1",
+    "redis": "^4.1.0",
     "source-map-support": "^0.5.21"
   }
 }
