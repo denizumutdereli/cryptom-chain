@@ -6,8 +6,7 @@
   "description": "",
   "main": "",
   "scripts": {
-    "api": "SET NODE_ENV=production& node ./api/bin/www",
-    "api:dev": "SET NODE_ENV=dev& node ./api/bin/www",
+    "api:dev": "SET NODE_ENV=dev& nodemon ./api/bin/www",
     "api:prod": "SET NODE_ENV=production& node ./bin/www",
     "chain-test": "jest --watchAll"
   },
@@ -23,6 +22,7 @@
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.0",
     "compression": "^1.7.4",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
@@ -33,9 +33,9 @@
     "hex-to-binary": "^1.0.1",
     "http-errors": "~1.6.3",
     "jsonwebtoken": "^8.5.1",
-    "morgan": "~1.9.1",
     "mongoose": "^6.1.5",
     "mongoose-paginate-v2": "^1.6.2",
+    "morgan": "~1.9.1",
     "source-map-support": "^0.5.21"
   }
 }

@@ -20,21 +20,9 @@ const UserSchema = new Schema({
     type: String,
     enum: ["user", "admin"],
     message: "{VALUE} is not supported. Try {user}",
-    required: [false, " {PATH} is required. You can set {buyer/seller}"],
+    required: [false, " {PATH} is required. You can set {user/admin}"],
     lowercase: true,
     immutable: true, //there should be some other features to update and track clients. Not here.
-  },
-  seasons: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "seasons",
-  },
-  teams: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "teams",
-  },
-  fixtures: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "fixtures",
   },
   date: {
     type: Date,

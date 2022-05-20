@@ -5,10 +5,9 @@ const helmet = require('helmet');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const bodyParser = require('body-parser');
 
 const env = require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` })
-
-
 
 const rateLimit = require('express-rate-limit')
 var cors = require('cors');
@@ -18,6 +17,7 @@ const config = require('./config/auth.config');
 
 const indexRouter = require('./routes/index');
 const userRouter = require('./routes/users');
+const blockchainRouter = require('./routes/blockchain');
 
 const app = express();
 
@@ -44,8 +44,11 @@ const db = require('./config/db.config')();
 
 app.use(limiter)
 app.use(logger('dev'));
-app.use(express.json());
+//app.use(express.json());
+app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
+
+
 app.use(cookieParser());
 app.use(compression()); //Compress all routes
 
@@ -56,6 +59,7 @@ app.use(cors());
 
 app.use('/', indexRouter);
 app.use('/api', verifyToken);
+app.use('/api/chain/', blockchainRouter);
 app.use('/api/user', userRouter);
  
 // catch 404 and forward to error handler
