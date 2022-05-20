@@ -6,6 +6,8 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
+const VMNODE = require('../kafka');
+const Blockchain = require('../blockchain/blockchain');
 
 const env = require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` })
 
@@ -20,6 +22,12 @@ const userRouter = require('./routes/users');
 const blockchainRouter = require('./routes/blockchain');
 
 const app = express();
+
+//wmnode and blockchain
+const blockchain = new Blockchain();
+const wmnode = new VMNODE({blockchain});
+
+setTimeout( ()=> wmnode.broadCastChain(),1000);
 
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }));
