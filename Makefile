@@ -8,5 +8,5 @@ apidev:
 apiprod:
 	npm run api:dev
 test:
-	npm run test
+	npm run chain-test
 .PHONY: dockerdbs pgstart createdb dropdb migrateup migratedown apidev apiprod test
