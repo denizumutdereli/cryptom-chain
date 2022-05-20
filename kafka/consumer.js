@@ -1,6 +1,9 @@
 const { Kafka } = require('kafkajs');
+const Blockchain = require('../blockchain/blockchain');
 
-async function Consumer(clientId, brokers, groupId, channel) {
+blockchain = new Blockchain();
+
+async function Consumer(clientId, brokers, groupId, channels) {
     try {
         const kafka = new Kafka({
             clientId: clientId,
@@ -16,14 +19,23 @@ async function Consumer(clientId, brokers, groupId, channel) {
         console.log("Connected.");
 
         // Consumer Subscribe..
-        await consumer.subscribe({
-            topic: channel,
-            fromBeginning: true
+        Object.values(channels).forEach(channel => {
+            
+            consumer.subscribe({
+                topic: channel,
+                fromBeginning: true
+            });
         });
 
         await consumer.run({
             eachMessage: async result => {
-                console.log(`Message received: \n${result.message.value} on channel: ${channel}`);
+                console.log(`Message received: \n${JSON.parse(result.message.value)} on channel: ${result.topic}`);
+
+                let parsedMessage = JSON.parse(result.message.value);
+                if (result.topic === 'MAIN') {
+                    blockchain.replaceChain(parsedMessage);
+                }
+
             }
         });
     } catch (error) {
