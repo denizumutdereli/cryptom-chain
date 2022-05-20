@@ -1,7 +1,7 @@
 const { Kafka } = require('kafkajs');
 const Blockchain = require('../blockchain/blockchain');
 
-blockchain = new Blockchain();
+const blockchain = new Blockchain();
 
 async function Consumer(clientId, brokers, groupId, channels) {
     try {
@@ -29,7 +29,7 @@ async function Consumer(clientId, brokers, groupId, channels) {
 
         await consumer.run({
             eachMessage: async result => {
-                console.log(`Message received: \n${JSON.parse(result.message.value)} on channel: ${result.topic}`);
+                //console.log(`Message received: \n${JSON.parse(result.message.value)} on channel: ${result.topic}`);
 
                 let parsedMessage = JSON.parse(result.message.value);
                 if (result.topic === 'MAIN') {

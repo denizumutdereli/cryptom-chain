@@ -3,8 +3,11 @@ const router = express.Router();
 
 const rateLimit = require("express-rate-limit");
 const Blockchain = require("../../blockchain/blockchain");
+const VMNODE = require("../../kafka");
+
 
 const blockchain = new Blockchain(); //temporary initial
+const vmnode = new VMNODE({ blockchain });
 
 const AccountLimiter = rateLimit({
     windowMs: 60 * 60 * 1000, // 1 hour
@@ -50,9 +53,11 @@ router.get("/blocks", AccountLimiter, (req, res, next) => {
  **/
 
 router.post("/mine", AccountLimiter, (req, res, next) => {
-    const {data}  = req.body
+    const { data } = req.body
 
-    blockchain.addBlock({data});
+    blockchain.addBlock({ data });
+
+    vmnode.broadCastChain();
 
     res.redirect('/api/chain/blocks');
 });
