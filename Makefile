@@ -14,6 +14,8 @@ vmnode:
 vmnodestop:
 	docker stop kafdrop 
 	docker stop kafka	
+peer:
+	npm run dev-peer
 test:
 	npm run chain-test
-.PHONY: dockerdbs pgstart createdb dropdb migrateup migratedown apidev apiprod vmnode test
+.PHONY: dockerdbs pgstart createdb dropdb migrateup migratedown apidev apiprod vmnode peer test
