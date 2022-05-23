@@ -5,6 +5,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const rateLimit = require("express-rate-limit");
 const User = require("../models/User");
+const Blockchain = require('../../blockchain/blockchain');
+const blockchain = new Blockchain();
 
 const AccountLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
@@ -15,6 +17,25 @@ const AccountLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+});
+
+
+/**
+ * @api {get} /blocks
+ * @apiName Get Blocks
+ * @apiPermission JWT / 720 seconds / Active Session - no paralel use
+ * @apiGroup User
+ *
+ * @rateLimit 1 Hour Window (IP) / Request limit:100 JWT 12 minutes
+ * 
+ * @apiSuccess (200) {Object} mixed `JWT token` object
+ * @apiError (401) {Object} {status: false, message: message}
+ * 
+ * @refreshToken to be implemented!
+ **/
+
+ router.get("/blocks", AccountLimiter, (req, res, next) => {
+  res.json(blockchain.chain);
 });
 
 /**

@@ -3,7 +3,7 @@ const Blockchain = require('../blockchain/blockchain');
 
 const blockchain = new Blockchain();
 
-async function Consumer(clientId, brokers, groupId, channels) {
+async function Consumer(clientId, brokers, groupId, channels, connectionMode = true) {
     try {
         const kafka = new Kafka({
             clientId: clientId,
@@ -15,12 +15,18 @@ async function Consumer(clientId, brokers, groupId, channels) {
         });
 
         console.log("Signal consumer connecting..");
-        await consumer.connect();
-        console.log("Connected.");
+
+        if (connectionMode) {
+            await consumer.connect();
+            console.log("Connected.");
+        } else {
+            await consumer.disconnect();
+        }
+
 
         // Consumer Subscribe..
         Object.values(channels).forEach(channel => {
-            
+
             consumer.subscribe({
                 topic: channel,
                 fromBeginning: true
@@ -38,6 +44,7 @@ async function Consumer(clientId, brokers, groupId, channels) {
 
             }
         });
+
     } catch (error) {
         console.log("Error", error);
     }

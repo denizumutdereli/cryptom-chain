@@ -42,7 +42,7 @@ class Blockchain {
 
     replaceChain(chain) {
 
-        chain = JSON.parse(chain);
+        //chain = JSON.parse(chain);
 
         //console.log(chain[0])
 

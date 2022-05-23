@@ -8,10 +8,9 @@ const CHANNELS = {
 
 const clientId = "kafka-client";
 const brokers = ["localhost:9092"];
-const groupId = "miner";
+const groupId = 'miner' //1000+ Math.ceil(Math.random() *1000);
 
-class VMNODE{
-
+class VMNODE {
     constructor({ blockchain }) {
 
         this.blockchain = blockchain;
@@ -20,7 +19,15 @@ class VMNODE{
     }
 
     publish({ channel, message }) {
-        this.producer = Producer(clientId, brokers, channel, JSON.stringify(message));
+
+        const sequenceOfOperation = new Promise((resolve, reject) => {
+            resolve(this.consumer = Consumer(clientId, brokers, groupId, CHANNELS, false));
+        });
+        sequenceOfOperation.then(() => {
+            this.producer = Producer(clientId, brokers, channel, JSON.stringify(message));
+        }).then(() => {
+            this.consumer = Consumer(clientId, brokers, groupId, CHANNELS);
+        })
     }
 
     broadCastChain() {
@@ -31,6 +38,5 @@ class VMNODE{
     }
 
 }
-
 
 module.exports = VMNODE;

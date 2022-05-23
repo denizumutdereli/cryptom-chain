@@ -12,7 +12,7 @@ const http = require('http');
  * Get port from environment and store in Express.
  */
   
-const DEFAULT_PORT = 3000;
+const DEFAULT_PORT = parseInt(process.env.PORT);
 let PEER_PORT;
 
 if (process.env.GENERATE_PEER_PORT === 'true') {
@@ -22,7 +22,7 @@ if (process.env.GENERATE_PEER_PORT === 'true') {
 
 process.env.PORT = PEER_PORT || DEFAULT_PORT;
 
-const port = normalizePort(process.env.PORT || 3000);
+const port = normalizePort(process.env.PORT);
 app.set('port', port);
 
 /**

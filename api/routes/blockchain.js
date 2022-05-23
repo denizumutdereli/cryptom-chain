@@ -3,7 +3,7 @@ const router = express.Router();
 
 const rateLimit = require("express-rate-limit");
 const Blockchain = require("../../blockchain/blockchain");
-const VMNODE = require("../../kafka");
+const VMNODE = require("../../redis");
 
 
 const blockchain = new Blockchain(); //temporary initial
@@ -57,9 +57,9 @@ router.post("/mine", AccountLimiter, (req, res, next) => {
 
     blockchain.addBlock({ data });
 
-    vmnode.broadCastChain();
+    //vmnode.broadCastChain();
 
-    res.redirect('/api/chain/blocks');
+    res.redirect('/blocks');
 });
 
 /**
