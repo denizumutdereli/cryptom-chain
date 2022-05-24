@@ -9,7 +9,7 @@ const logger = require('morgan');
 const bodyParser = require('body-parser');
 //const VMNODE = require('../kafka');
 const VMNODE = require('../redis');
-const Blockchain = require('../blockchain/blockchain');
+const Blockchain = require('../blockchain');
 
 const env = require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` })
 
@@ -18,6 +18,19 @@ var cors = require('cors');
 
 // config
 const config = require('./config/auth.config');
+
+
+//peer config
+const DEFAULT_PORT = parseInt(process.env.PORT);
+let PEER_PORT;
+
+if (process.env.GENERATE_PEER_PORT === 'true') {
+  PEER_PORT = DEFAULT_PORT + Math.ceil(Math.random() * 1000);
+  console.log("PEER_PORT: " + PEER_PORT)
+}
+process.env.PORT = PEER_PORT || DEFAULT_PORT;
+//.ends
+
 
 const indexRouter = require('./routes/index');
 const userRouter = require('./routes/users');
@@ -106,7 +119,11 @@ app.use((err, req, res, next) => {
   res.status(400).json({ errror: err.message, code: err.code });
 });
 
+if (DEFAULT_PORT !== process.env.PORT) {
+  syncChains();
+}
 
-syncChains();
+console.log(DEFAULT_PORT, PEER_PORT,'*')
+
 
 module.exports = app;

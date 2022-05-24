@@ -5,7 +5,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const rateLimit = require("express-rate-limit");
 const User = require("../models/User");
-const Blockchain = require('../../blockchain/blockchain');
+const Blockchain = require('../../blockchain');
 const blockchain = new Blockchain();
 
 const AccountLimiter = rateLimit({
