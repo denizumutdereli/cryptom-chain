@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const rateLimit = require("express-rate-limit");
-const Blockchain = require("../../blockchain/blockchain");
+const Blockchain = require("../../blockchain");
 const VMNODE = require("../../redis");
 
 
@@ -53,11 +53,12 @@ router.get("/blocks", AccountLimiter, (req, res, next) => {
  **/
 
 router.post("/mine", AccountLimiter, (req, res, next) => {
+ 
     const { data } = req.body
 
     blockchain.addBlock({ data });
 
-    //vmnode.broadCastChain();
+    vmnode.broadCastChain();
 
     res.redirect('/blocks');
 });

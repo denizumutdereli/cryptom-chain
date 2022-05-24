@@ -1,5 +1,5 @@
 const { Kafka } = require('kafkajs');
-const Blockchain = require('../blockchain/blockchain');
+const Blockchain = require('../blockchain');
 
 const blockchain = new Blockchain();
 

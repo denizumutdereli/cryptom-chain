@@ -13,7 +13,7 @@ class VMNODE {
     constructor({ blockchain }) {
         this.blockchain = blockchain;
 
-        this.producer = redis.createClient();
+        this.producer = redis.createClient({url: 'redis://localhost:6379'});
 
         this.producer.on("error", function (error) {
             console.error(error);
@@ -25,7 +25,7 @@ class VMNODE {
             console.info('publisher connected');
         });
 
-        this.connsumer = redis.createClient();
+        this.connsumer = redis.createClient({url: 'redis://localhost:6379'});
         //this.connsumer.connect(); redis version ^4.0
 
         this.connsumer.on("error", function (err) {
@@ -41,13 +41,18 @@ class VMNODE {
             this.connsumer.subscribe(channel);
         });
 
-
         this.connsumer.on('message', (channel, message) => this.handleMessage(channel, message));
 
     }
 
     handleMessage(channel, message) {
-        console.log(`Message received on channel: ${channel} the message: ${JSON.parse(message)}`);
+        async () => {
+            let parsedMessage = JSON.parse(message);
+            if (channel === 'MAIN') {
+                this.blockchain.replaceChain(parsedMessage);
+            }
+            console.log(`Message received on channel: ${channel} the message: ${JSON.parse(message)}`);
+        }
     }
 
     publish({ channel, message }) {
