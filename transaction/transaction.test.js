@@ -24,6 +24,10 @@ describe('Transaction', () => {
             expect(transaction).toHaveProperty('outputMap');
         });
 
+        it('outputs of the amount should be absoulte value or equal to 0', () => {
+            expect(Math.ceil(transaction.outputMap[recipient])).toBeGreaterThanOrEqual(0)
+        });
+        
         it('outputs the amount to the recipient', () => {
             expect(transaction.outputMap[recipient]).toEqual(amount);
         });
@@ -57,7 +61,46 @@ describe('Transaction', () => {
                 signature: transaction.input.signature
             })).toBe(true);            
         });
-
     });
+    //..ends
+
+    describe('validTransaction()', () => {
+
+        let errorMock, logMock;
+
+        beforeEach(() => {
+            errorMock = jest.fn();
+            //logMock = jest.fn();
+
+            global.console.error = errorMock;
+            //global.console.log = logMock;
+        });
+
+        describe('when the transaction is valid', () => {
+            it('returns true', () => {
+                expect(Transaction.validTransaction(transaction)).toBe(true);
+            });
+        });
+        
+        describe('when the transaction is NOT vvalid', () => {
+            describe('and a transaction output is NOT valid', () => {
+                it('returns false and logs an error', () => {
+                    transaction.outputMap[senderWallet.publicKey] = 999999999000000000000000000;
+                    expect(Transaction.validTransaction(transaction)).toBe(false);
+                    expect(errorMock).toHaveBeenCalled();
+                });
+            });
+
+            describe('and the transaction input signature is NOT valid', () => {
+                it('returns false and log an error', () => {
+                    transaction.input.signature = new Wallet().sign('data');
+                    expect(Transaction.validTransaction(transaction)).toBe(false)
+                });
+            });
+        });
+    });
+
+
+
 
 });
