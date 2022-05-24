@@ -1,6 +1,6 @@
-const { expectCt } = require('helmet');
 const Wallet = require('./');
 const { verifySignature } = require('../utilities/ec');
+const Transaction = require('../transaction');
 
 describe('Wallet', () => {
 
@@ -39,6 +39,49 @@ describe('Wallet', () => {
             })).toBe(false);
 
         });
+    });
+    //..ends
+
+    describe('createTransaction', () => {
+
+        describe('and the amount exceeds the balance', () => {
+            it('throws  an error', () => {
+                expect(() => wallet.createTransaction({ amount: 999999999000000000, receipent: 'deniz-umut-dereli' }))
+                    .toThrow('Amount exceeds the balance');
+            });
+        });
+
+        describe('and the amount is valid', () => {
+
+            let transaction, amount, recipient, currency;
+
+            beforeEach(() => {
+                amount = 0.2023;
+                receipent = 'deniz-umut-dereli';
+                currency = 'DNZ';
+                transaction = wallet.createTransaction({ amount, recipient, currency})
+            });
+
+            
+            it('creates an instance of `Transaction`', () => {
+                expect(transaction instanceof Transaction).toBe(true);
+            });
+            
+            it('matches the transaction input with the wallet', () => {
+                expect(transaction.input.address).toEqual(wallet.publicKey);
+            });
+            
+            it('outputs the amount the recipient', () => {
+                expect(transaction.outputMap[recipient]).toEqual(amount)
+            });
+            
+            // it('outputs currenct should be the same', () => {
+            //     expect(transaction.outputMap[currency]).toEqual(currency)
+            // });
+
+
+        });
+
     });
 
 });
