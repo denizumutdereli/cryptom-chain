@@ -1,42 +1,45 @@
+const Transaction = require('./');
+
 class Network {
-    constructor() {
-        this.transactionMap = {};
-    }
+  constructor() {
+    this.transactionMap = {};
+  }
 
-    clear() {
-        this.transactionMap = {};
-    }
+  clear() {
+    this.transactionMap = {};
+  }
 
-    setTransaction(transaction) {
-        this.transactionMap[transaction.id] = transaction;
-    }
+  setTransaction(transaction) {
+    this.transactionMap[transaction.id] = transaction;
+  }
 
-    setMap(transactionMap) {
-        this.transactionMap = transactionMap;
-    }
+  setMap(transactionMap) {
+    this.transactionMap = transactionMap;
+  }
 
-    existingTransaction({ inputAddress }) {
-        const transactions = Object.values(this.transactionMap);
-        return transactions.find(transaction => transaction.input.address === inputAddress);
-    }
+  existingTransaction({ inputAddress }) {
+    const transactions = Object.values(this.transactionMap);
 
-    validTransactions() {
-        return Object.values(this.transactionMap).filter(
-            transaction => Transaction.validTransaction(transaction)
-        );
-    }
+    return transactions.find(transaction => transaction.input.address === inputAddress);
+  }
 
-    clearBlockchainTransactions({ chain }) {
-        for (let i = 1; i < chain.length; i++) {
-            const block = chain[i];
+  validTransactions() {
+    return Object.values(this.transactionMap).filter(
+      transaction => Transaction.validTransaction(transaction)
+    );
+  }
 
-            for (let transaction of block.data) {
-                if (this.transactionMap[transaction.id]) {
-                    delete this.transactionMap[transaction.id];
-                }
-            }
+  clearBlockchainTransactions({ chain }) {
+    for (let i=1; i<chain.length; i++) {
+      const block = chain[i];
+
+      for (let transaction of block.data) {
+        if (this.transactionMap[transaction.id]) {
+          delete this.transactionMap[transaction.id];
         }
+      }
     }
+  }
 }
 
 module.exports = Network;
