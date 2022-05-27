@@ -1,6 +1,7 @@
 const Transaction = require('./');
 const Wallet = require('../wallet');
 const { verifySignature } = require('../utilities/ec');
+const { REWARD_INPUT, MINING_REWARD } = require('../blockchain/chain-config');
 
 
 describe('Transaction', () => {
@@ -64,6 +65,7 @@ describe('Transaction', () => {
     });
     //..ends
 
+    //Transaction validation
     describe('validTransaction()', () => {
 
         let errorMock, logMock;
@@ -101,6 +103,7 @@ describe('Transaction', () => {
     });
     //..ends
 
+    //Transaction update
     describe('update()', () => {
 
         let originalSignature, originalSenderOutput, nextRecipient, nextAmount, nextCurrency;
@@ -108,13 +111,13 @@ describe('Transaction', () => {
 
         describe('and the amount is invalid', () => {
             it('throws an error', () => {
-              expect(() => {
-                transaction.update({
-                  senderWallet, recipient: 'deniz', amount: 999999
-                })
-              }).toThrow('Amount exceeds balance');
+                expect(() => {
+                    transaction.update({
+                        senderWallet, recipient: 'deniz', amount: 999999
+                    })
+                }).toThrow('Amount exceeds balance');
             });
-          });
+        });
 
         describe('and the amount is valid', () => {
 
@@ -168,4 +171,26 @@ describe('Transaction', () => {
 
         });
     });
+    //..ends
+
+    //Reward Transactions
+    describe('rewardTransaction()', () => {
+        let rewardTransaction, minerWallet;
+
+        beforeEach(() => {
+            minerWallet = new Wallet();
+            rewardTransaction = Transaction.rewardTransaction({ minerWallet });
+        });
+
+        it('creates a transaction with the reward inputs', () => {
+
+            expect(rewardTransaction.input).toEqual(REWARD_INPUT);
+        });
+
+        it('creates one transaction for the miner with the `MINING_REWARD`', () => {
+            expect(rewardTransaction.outputMap[minerWallet.publicKey]).toEqual(MINING_REWARD);
+        });
+
+    });
+    //..ends
 });
