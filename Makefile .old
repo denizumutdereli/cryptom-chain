@@ -8,10 +8,12 @@ apidev:
 apiprod:
 	npm run api:dev
 vmnode:
-	docker-compose -f .\redis\docker-compose.yml up -d 
-	docker start redis
+	docker-compose -f .\kafka\docker-compose.yml up -d 
+	docker start kafka
+	docker start kafka
 vmnodestop:
-	docker stop redis	
+	docker stop kafdrop 
+	docker stop kafka	
 peer:
 	npm run dev-peer
 test:

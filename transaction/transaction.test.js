@@ -16,7 +16,7 @@ describe('Transaction', () => {
     });
 
     it('has an `ID`', () => {
-        expect(transaction).toHaveProperty('ID');
+        expect(transaction).toHaveProperty('id');
     });
 
     describe('outputMap', () => {
@@ -106,13 +106,15 @@ describe('Transaction', () => {
         let originalSignature, originalSenderOutput, nextRecipient, nextAmount, nextCurrency;
 
 
-        describe('and the transaction is invalid', () => {
+        describe('and the amount is invalid', () => {
             it('throws an error', () => {
-                expect(() => {
-                    transaction.update({ senderWallet, recipient: 'deniz', amount: 9999990000, currency: 'DNZ' })
-                }).toThrow('Amount exceeds the balance');
+              expect(() => {
+                transaction.update({
+                  senderWallet, recipient: 'deniz', amount: 999999
+                })
+              }).toThrow('Amount exceeds balance');
             });
-        });
+          });
 
         describe('and the amount is valid', () => {
 
