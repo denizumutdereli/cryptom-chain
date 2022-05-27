@@ -1,13 +1,12 @@
 const crypto = require('crypto');
 //const hexToBinary = require('hex-to-binary');
 
-const cryptoHash = (...args) => {
+const cryptoHash = (...inputs) => {
     const hash = crypto.createHash('sha256');
-
-    hash.update(args.map( arg => JSON.stringify(arg) ).sort().join(' '));
- 
-    //return hexToBinary(hash.digest('hex'));
+  
+    hash.update(inputs.map(input => JSON.stringify(input)).sort().join(' '));
+  
     return hash.digest('hex');
-};
-
-module.exports = cryptoHash;
+  };
+  
+  module.exports = cryptoHash;

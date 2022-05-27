@@ -2,78 +2,74 @@ const redis = require('redis');
 
 const CHANNELS = {
     TEST: 'TEST',
-    MAIN: 'MAIN'
-}
+    BLOCKCHAIN: 'BLOCKCHAIN',
+    TRANSACTION: 'TRANSACTION'
+};
 
-// const clientId = "kafka-client";
-// const brokers = ["localhost:9092"];
-// const groupId = 'miner' //1000+ Math.ceil(Math.random() *1000);
-
-class VMNODE {
-    constructor({ blockchain }) {
+class WMNODE {
+    constructor({ blockchain, network, redisUrl }) {
         this.blockchain = blockchain;
+        this.network = network;
 
-        this.producer = redis.createClient({url: 'redis://localhost:6379'});
+        this.publisher = redis.createClient(redisUrl);
+        this.subscriber = redis.createClient(redisUrl);
 
-        this.producer.on("error", function (error) {
-            console.error(error);
-        });
+        this.subscribeToChannels();
 
-        //this.publisher.connect(); redis version ^4.0
-
-        this.producer.on("connect", function (error) {
-            console.info('publisher connected');
-        });
-
-        this.connsumer = redis.createClient({url: 'redis://localhost:6379'});
-        //this.connsumer.connect(); redis version ^4.0
-
-        this.connsumer.on("error", function (err) {
-            console.log("Error " + err);
-        });
-
-        this.connsumer.on("connect", function (error) {
-            console.info('consumer connected');
-        });
-
-        // Consumer Subscribe to all channels
-        Object.values(CHANNELS).forEach(channel => {
-            this.connsumer.subscribe(channel);
-        });
-
-        this.connsumer.on('message', (channel, message) => this.handleMessage(channel, message));
-
+        this.subscriber.on(
+            'message',
+            (channel, message) => this.handleMessage(channel, message)
+        );
     }
 
     handleMessage(channel, message) {
-        async () => {
-            let parsedMessage = JSON.parse(message);
-            if (channel === 'MAIN') {
-                this.blockchain.replaceChain(parsedMessage);
-            }
-            console.log(`Message received on channel: ${channel} the message: ${JSON.parse(message)}`);
+        console.log(`Message received. Channel: ${channel}. Message: ${message}.`);
+
+        const parsedMessage = JSON.parse(message);
+
+        switch (channel) {
+            case CHANNELS.BLOCKCHAIN:
+                this.blockchain.replaceChain(parsedMessage, true, () => {
+                    this.network.clearBlockchainTransactions({
+                        chain: parsedMessage
+                    });
+                });
+                break;
+            case CHANNELS.TRANSACTION:
+                this.network.setTransaction(parsedMessage);
+                break;
+            default:
+                return;
         }
     }
 
-    publish({ channel, message }) {
-
-        const sequenceOfOperation = new Promise((resolve, reject) => {
-            // this.consumer.quit();
-            resolve(this.connsumer.unsubscribe());
+    subscribeToChannels() {
+        Object.values(CHANNELS).forEach(channel => {
+            this.subscriber.subscribe(channel);
         });
-        sequenceOfOperation.then((c) => {
-            this.producer.publish(channel, JSON.stringify(message));
-        }).then(() => {
-            this.connsumer.subscribe(channel);
-        })
     }
 
-    broadCastChain() {
+    publish({ channel, message }) {
+        this.subscriber.unsubscribe(channel, () => {
+            this.publisher.publish(channel, message, () => {
+                this.subscriber.subscribe(channel);
+            });
+        });
+    }
+
+    broadcastChain() {
         this.publish({
-            channel: CHANNELS.MAIN,
+            channel: CHANNELS.BLOCKCHAIN,
             message: JSON.stringify(this.blockchain.chain)
+        });
+    }
+
+    broadcastTransaction(transaction) {
+        this.publish({
+            channel: CHANNELS.TRANSACTION,
+            message: JSON.stringify(transaction)
         });
     }
 }
 
-module.exports = VMNODE;
+module.exports = WMNODE;
