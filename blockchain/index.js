@@ -43,7 +43,7 @@ class Blockchain {
         return true;
     }
 
-    replaceChain(chain) {
+    replaceChain(chain, onSuccess) {
 
         //chain = JSON.parse(chain);
 
@@ -58,6 +58,8 @@ class Blockchain {
             console.error('The incoming chain must be valid');
             return;
         }
+
+        if (onSuccess) onSuccess();
 
         console.log('replacing chain with', chain);
         this.chain = chain;

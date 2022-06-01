@@ -87,7 +87,7 @@ describe('Network', () => {
 
       for (let i=0; i<6; i++) {
         const transaction = new Wallet().createTransaction({
-          recipient: 'foo', amount: 20
+          recipient: 'deniz', amount: 40
         });
 
         network.setTransaction(transaction);
