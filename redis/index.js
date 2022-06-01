@@ -29,7 +29,7 @@ class WMNODE {
 
         switch (channel) {
             case CHANNELS.BLOCKCHAIN:
-                this.blockchain.replaceChain(parsedMessage, true, () => {
+                this.blockchain.replaceChain(parsedMessage, () => {
                     this.network.clearBlockchainTransactions({
                         chain: parsedMessage
                     });

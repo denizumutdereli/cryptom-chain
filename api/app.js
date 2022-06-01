@@ -12,6 +12,7 @@ const VMNODE = require('../redis');
 const Blockchain = require('../blockchain');
 const Network = require('../transaction/network');
 const Wallet = require('../wallet');
+const Miner = require('../miner');
 
 const env = require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` })
 
@@ -30,6 +31,9 @@ if (process.env.GENERATE_PEER_PORT === 'true') {
   PEER_PORT = DEFAULT_PORT + Math.ceil(Math.random() * 1000);
   console.log("PEER_PORT: " + PEER_PORT)
 }
+
+if (PEER_PORT === undefined) PEER_PORT = DEFAULT_PORT;
+
 process.env.PORT = PEER_PORT || DEFAULT_PORT;
 
 const isDevelopment = process.env.ENV === 'development';
@@ -58,7 +62,7 @@ const blockchain = new Blockchain();
 const network = new Network();
 const wallet = new Wallet();
 const wmnode = new VMNODE({ blockchain, network, REDIS_URL });
-
+const miner = new Miner({ blockchain, network, wallet, wmnode });
 
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }));
@@ -122,17 +126,6 @@ app.get('/blocks/:id', limiter, (req, res) => {
   res.json(blocksReversed.slice(startIndex, endIndex));
 });
 
-app.post('/mine', limiter, (req, res) => {
-  const { data } = req.body;
-
-  blockchain.addBlock({ data });
-
-  wmnode.broadcastChain();
-
-  res.redirect('/blocks');
-});
-
-
 app.post("/transaction", limiter, (req, res, next) => {
   const { amount, recipient } = req.body;
 
@@ -164,7 +157,30 @@ app.get("/network", limiter, (req, res, next) => {
   res.json(network.transactionMap);
 });
 
+app.post('/minetest', limiter, (req, res) => {
+  const { data } = req.body;
 
+  blockchain.addBlock({ data });
+
+  wmnode.broadcastChain();
+
+  res.redirect('/blocks');
+});
+
+
+app.get('/mine', limiter, (req, res) => {
+  miner.mineTransactions();
+
+  res.redirect('/blocks');
+});
+
+app.get('/wallet', limiter, (req, res) => {
+  const address = wallet.publicKey;
+  res.json({
+    address: address,
+    balance: Wallet.calculateBalance({ chain: blockchain.chain, address: address })
+  });
+});
 //.ends
 
 const syncWithRootState = () => {
@@ -176,7 +192,7 @@ const syncWithRootState = () => {
     }
   });
 
-  request({url: `${VM_NODE_ADDRESS}/network`}, (error, response, body) => {
+  request({ url: `${VM_NODE_ADDRESS}/network` }, (error, response, body) => {
     if (!error && response.statusCode === 200) {
       const rootNetwork = JSON.parse(body);
       console.log('replace network pool map on a sync with', rootNetwork);

@@ -1,5 +1,5 @@
 const MINE_RATE = 3000; //3second
-const INITIAL_DIFFICULTY = 4;
+const INITIAL_DIFFICULTY = 10;
 const MINING_REWARD = 50;
 
 const GENESIS_DATA = {
